@@ -2,11 +2,11 @@
 
 date_default_timezone_set("Asia/Tehran");
 
-define('PCB_TEMP_MIN_TEMP',45);
-define('PCB_TEMP_MAX_TEMP',85);
+define('PCB_TEMP_MIN',45);
+define('PCB_TEMP_MAX',85);
 
-define('CHIP_TEMP_MIN_TEMP',65);
-define('CHIP_TEMP_MAX_TEMP',110);
+define('CHIP_TEMP_MIN',65);
+define('CHIP_TEMP_MAX',110);
 
 $minerPassword="alireza1368!@#";
 $IP_Prefix = "192.168.5.";

@@ -197,17 +197,17 @@ foreach($miners as $minerId => $minerValue){
         print_cell($record->{"fan6"}, get_fan_value_color($record->{"fan6"}));
         print_cell($record->{"fan3"} + $record->{"fan6"} );                
 
-        print_cell($record->{"temp6"} , get_color_baseon_min_max($record->{"temp6"}, PCB_TEMP_MIN_TEMP, PCB_TEMP_MAX_TEMP));
-        print_cell($record->{"temp7"} , get_color_baseon_min_max($record->{"temp7"}, PCB_TEMP_MIN_TEMP, PCB_TEMP_MAX_TEMP ));
-        print_cell($record->{"temp8"} , get_color_baseon_min_max($record->{"temp8"}, PCB_TEMP_MIN_TEMP, PCB_TEMP_MAX_TEMP ));
+        print_cell($record->{"temp6"} , get_color_baseon_min_max($record->{"temp6"}, PCB_TEMP_MIN, PCB_TEMP_MAX));
+        print_cell($record->{"temp7"} , get_color_baseon_min_max($record->{"temp7"}, PCB_TEMP_MIN, PCB_TEMP_MAX ));
+        print_cell($record->{"temp8"} , get_color_baseon_min_max($record->{"temp8"}, PCB_TEMP_MIN, PCB_TEMP_MAX ));
         $avg = round(($record->{"temp6"} + $record->{"temp7"} + $record->{"temp8"} ) / 3, 1);
-        print_cell( $avg, get_color_baseon_min_max($avg, PCB_TEMP_MIN_TEMP, PCB_TEMP_MAX_TEMP));
+        print_cell( $avg, get_color_baseon_min_max($avg, PCB_TEMP_MIN, PCB_TEMP_MAX));
        
-        print_cell($record->{"temp2_6"}, get_color_baseon_min_max($record->{"temp2_6"}, CHIP_TEMP_MIN_TEMP, CHIP_TEMP_MAX_TEMP));
-        print_cell($record->{"temp2_7"}, get_color_baseon_min_max($record->{"temp2_7"}, CHIP_TEMP_MIN_TEMP, CHIP_TEMP_MAX_TEMP));
-        print_cell($record->{"temp2_8"}, get_color_baseon_min_max($record->{"temp2_8"}, CHIP_TEMP_MIN_TEMP, CHIP_TEMP_MAX_TEMP));
+        print_cell($record->{"temp2_6"}, get_color_baseon_min_max($record->{"temp2_6"}, CHIP_TEMP_MIN, CHIP_TEMP_MAX));
+        print_cell($record->{"temp2_7"}, get_color_baseon_min_max($record->{"temp2_7"}, CHIP_TEMP_MIN, CHIP_TEMP_MAX));
+        print_cell($record->{"temp2_8"}, get_color_baseon_min_max($record->{"temp2_8"}, CHIP_TEMP_MIN, CHIP_TEMP_MAX));
         $avg = round(($record->{"temp2_6"} + $record->{"temp2_7"} + $record->{"temp2_8"} ) / 3, 1);
-        print_cell( $avg, get_color_baseon_min_max($avg, CHIP_TEMP_MIN_TEMP, CHIP_TEMP_MAX_TEMP));
+        print_cell( $avg, get_color_baseon_min_max($avg, CHIP_TEMP_MIN, CHIP_TEMP_MAX));
        
         
         //print_cell( ( $record->{"fan3"} + $record->{"fan6"} ) * round(($record->{"temp6"} + 15 + $record->{"temp7"} + 15 + $record->{"temp8"} + 15) / 3, 2));        
