@@ -2,7 +2,7 @@
 
 include 'config.php';
 
-function create_temperatures_graph($minerId, $output, $start, $end, $title) 
+function create_temperatures_graph($mtype, $minerId, $output, $start, $end, $title) 
 {
     global $rrdBasePath;
     
@@ -16,24 +16,27 @@ function create_temperatures_graph($minerId, $output, $start, $end, $title)
         "--vertical-label=Temperatures",
         "--alt-autoscale",
         "--alt-y-grid",
-        "DEF:PCB1=$rrdBasePath/". $minerId ."_temp.rrd:pcb1:AVERAGE",
-        "DEF:PCB2=$rrdBasePath/". $minerId ."_temp.rrd:pcb2:AVERAGE",
-        "DEF:PCB3=$rrdBasePath/". $minerId ."_temp.rrd:pcb3:AVERAGE",
-        "DEF:CHIP1=$rrdBasePath/". $minerId ."_temp.rrd:chip1:AVERAGE",
-        "DEF:CHIP2=$rrdBasePath/". $minerId ."_temp.rrd:chip2:AVERAGE",
-        "DEF:CHIP3=$rrdBasePath/". $minerId ."_temp.rrd:chip3:AVERAGE",        
+        "DEF:CHIP1A=$rrdBasePath/". $minerId ."_temp.rrd:chip1A:AVERAGE",
+        "DEF:CHIP2A=$rrdBasePath/". $minerId ."_temp.rrd:chip2A:AVERAGE",
+        "DEF:CHIP3A=$rrdBasePath/". $minerId ."_temp.rrd:chip3A:AVERAGE",        
         
-        "LINE1:PCB1#f44141:PCB 1",
-        "LINE1:PCB2#f4a941:PCB 2",
-        "LINE1:PCB3#f4e541:PCB 3",
-        
-        "LINE1:CHIP1#41cdf4:CHIP 1",
-        "LINE1:CHIP2#416af4:CHIP 2",
-        "LINE1:CHIP3#7641f4:CHIP 3",
+        "LINE1:CHIP1A#41cdf4:CHIP 1A",
+        "LINE1:CHIP2A#416af4:CHIP 2A",
+        "LINE1:CHIP3A#7641f4:CHIP 3A",
         
         
-    );
-
+);
+   if($mtype == "Antminer S11")
+   {
+	$options = array_merge($options, array(
+        "DEF:CHIP1B=$rrdBasePath/". $minerId ."_temp.rrd:chip1B:AVERAGE",
+        "DEF:CHIP2B=$rrdBasePath/". $minerId ."_temp.rrd:chip2B:AVERAGE",
+        "DEF:CHIP3B=$rrdBasePath/". $minerId ."_temp.rrd:chip3B:AVERAGE",        
+        "LINE1:CHIP1B#61cdf4:CHIP 1B",
+        "LINE1:CHIP2B#716af4:CHIP 2B",
+	"LINE1:CHIP3B#8641f4:CHIP 3B",
+	));
+   }   
     $ret = rrd_graph($output, $options);
     if (! $ret) {
         die("<b>Graph Temperatures error: </b>".rrd_error()."\n");
@@ -181,15 +184,19 @@ if(isset($_REQUEST["minerId"])){
     $endTime = strtotime($endTime);
     
     // echo "$startTime   $endTime <br>";
-    
-    if($graphType == 1)
-        create_temperatures_graph($minerId, "test.png", $startTime, $endTime, "Miner " . $minerId . " Temperatures");
-    else if($graphType == 2){
-        if($minerId == 0)
-            create_hashrate_tot_graph("test.png", $startTime, $endTime, "Miner " . $minerId . " Hashrate");
-        else
-            create_hashrate_graph($minerId, "test.png", $startTime, $endTime, "Miner " . $minerId . " Hashrate");
-        
+
+    $miner_stat = report_miner_stat($IP_Prefix . $minerId, 4028);
+    if($miner_stat != NULL){
+    	$record = &$miner_stat->{"STATS"}[1];
+        $d1     = &$miner_stat->{"STATS"}[0];
+    	if($graphType == 1)
+            create_temperatures_graph($d1->{"Type"}, $minerId, "test.png", $startTime, $endTime, "Miner " . $minerId . " Temperatures");
+       else if($graphType == 2){
+            if($minerId == 0)
+                create_hashrate_tot_graph("test.png", $startTime, $endTime, "Miner " . $minerId . " Hashrate");
+            else
+                create_hashrate_graph($minerId, "test.png", $startTime, $endTime, "Miner " . $minerId . " Hashrate");
+       }
     }
     
     echo '<img src="test.png" alt="Generated RRD image" >';    

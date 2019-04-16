@@ -119,7 +119,6 @@ echo '<table class="sortable" border="1" width="100%">
 	<tr>
 		<th colspan="4">Mining Stats</th>
         <th colspan="3">FAN</th>
-        <th colspan="4">PCB Temp</th>
         <th colspan="7">Chip Temp</th>
 		<th colspan="5">Device Specification</th>		
 	</tr>
@@ -133,11 +132,6 @@ echo '<table class="sortable" border="1" width="100%">
             <th>2</th>
             <th>Tot</th>        
         
-            <th>1</th>
-            <th>2</th>
-            <th>3</th>
-            <th>Avg</th>
-            
             <th colspan="2">1</th>
             <th colspan="2">2</th>
             <th colspan="2">3</th>
@@ -146,7 +140,6 @@ echo '<table class="sortable" border="1" width="100%">
 			<th title="Fan Information">FI</th>
 			<th title="Device Type">DT</th>
 			<th title="Position">Pos</th>
-            <th title="Reboot">Reboot</th>
     </tr>	
     <thead>
     <tbody>
@@ -178,7 +171,7 @@ foreach($miners as $minerId => $minerValue){
 	{
 		$row = floor($minerId / 10);
 
-                echo '\n<tr bgcolor = "#c2c2f0"><th  colspan=22>Row ';
+                echo '\n<tr bgcolor = "#c2c2f0"><th  colspan=17=>Row ';
                 echo $row;
                 echo "</th></tr>";
         }
@@ -188,16 +181,16 @@ foreach($miners as $minerId => $minerValue){
     print_cell( $minerId );
 
     
-    if(!empty($cmd)){
-        if(strcmp($cmd, "reboot") == 0){
-            if($arg_miner_id == $minerId ){
-                restart_miner($IP_Prefix . $arg_miner_id, 22, $minerPassword);
-                echo "<td>REBOOTING</td>";
-                echo "</tr>";                
-                continue;
-            }
-        }
-    }
+//    if(!empty($cmd)){
+//        if(strcmp($cmd, "reboot") == 0){
+//            if($arg_miner_id == $minerId ){
+//                restart_miner($IP_Prefix . $arg_miner_id, 22, $minerPassword);
+//                echo "<td>REBOOTING</td>";
+//               echo "</tr>";                
+//              continue;
+//            }
+//        }
+//    }
     
     $miner_stat = report_miner_stat($IP_Prefix . $minerId, 4028);
    // if($minerId == 54)
@@ -219,11 +212,6 @@ foreach($miners as $minerId => $minerValue){
         print_cell($record->{"fan2"}, 1, get_fan_value_color($record->{"fan2"}));
         print_cell($record->{"fan1"} + $record->{"fan2"} );
 
-        print_cell($record->{"temp1"} , 1, get_color_baseon_min_max($record->{"temp1"}, PCB_TEMP_MIN, PCB_TEMP_MAX));
-        print_cell($record->{"temp2"} , 1, get_color_baseon_min_max($record->{"temp2"}, PCB_TEMP_MIN, PCB_TEMP_MAX ));
-        print_cell($record->{"temp3"} , 1, get_color_baseon_min_max($record->{"temp3"}, PCB_TEMP_MIN, PCB_TEMP_MAX ));
-        $avg = round(($record->{"temp1"} + $record->{"temp2"} + $record->{"temp3"} ) / 3, 1);
-        print_cell( $avg, 1, get_color_baseon_min_max($avg, PCB_TEMP_MIN, PCB_TEMP_MAX));
 
 	print_cell($record->{"temp3_1"}, 1, get_color_baseon_min_max($record->{"temp3_1"}, CHIP_TEMP_MIN, CHIP_TEMP_MAX));
 	print_cell($record->{"temp2_1"}, 1, get_color_baseon_min_max($record->{"temp2_1"}, CHIP_TEMP_MIN, CHIP_TEMP_MAX));
@@ -245,11 +233,6 @@ foreach($miners as $minerId => $minerValue){
         print_cell($record->{"fan6"}, 1, get_fan_value_color($record->{"fan6"}));
         print_cell($record->{"fan3"} + $record->{"fan6"} );                
 
-        print_cell($record->{"temp6"} , 1, get_color_baseon_min_max($record->{"temp6"}, PCB_TEMP_MIN, PCB_TEMP_MAX));
-        print_cell($record->{"temp7"} , 1, get_color_baseon_min_max($record->{"temp7"}, PCB_TEMP_MIN, PCB_TEMP_MAX ));
-        print_cell($record->{"temp8"} , 1, get_color_baseon_min_max($record->{"temp8"}, PCB_TEMP_MIN, PCB_TEMP_MAX ));
-        $avg = round(($record->{"temp6"} + $record->{"temp7"} + $record->{"temp8"} ) / 3, 1);
-        print_cell( $avg, 1, get_color_baseon_min_max($avg, PCB_TEMP_MIN, PCB_TEMP_MAX));
        
         print_cell($record->{"temp2_6"}, 2, get_color_baseon_min_max($record->{"temp2_6"}, CHIP_TEMP_MIN, CHIP_TEMP_MAX));
         print_cell($record->{"temp2_7"}, 2, get_color_baseon_min_max($record->{"temp2_7"}, CHIP_TEMP_MIN, CHIP_TEMP_MAX));
@@ -271,7 +254,7 @@ foreach($miners as $minerId => $minerValue){
         print_cell($minerValue["Position"]);
         
         
-        echo '<td><form method="POST" style="margin-block-end: auto;"><a href="#" onclick="if(confirm(\'Do you want reboot?\')) parentNode.submit(); else window.location.assign(window.location.href);return false;">Reboot</a><input type="hidden" name="cmd" value="reboot"/><input type="hidden" name="minerId" value="'. $minerId .'" /></form></td>';
+//        echo '<td><form method="POST" style="margin-block-end: auto;"><a href="#" onclick="if(confirm(\'Do you want reboot?\')) parentNode.submit(); else window.location.assign(window.location.href);return false;">Reboot</a><input type="hidden" name="cmd" value="reboot"/><input type="hidden" name="minerId" value="'. $minerId .'" /></form></td>';
         
         // echo '<td><a href="?cmd=reboot&minerId=' . $minerId .'" target="_blank">Reboot</a></td>';
     }
