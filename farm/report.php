@@ -5,6 +5,10 @@ include 'config.php';
 echo '<script src="https://www.kryogenix.org/code/browser/sorttable/sorttable.js"></script>';
 
 echo ' <meta http-equiv="refresh" content="60;"> ';
+
+echo 'Today is '.date("Y-m-d, D G:i", time()) . "<br><br>";
+
+
 function restart_miner($ip, $port, $password)
 {
     /* Create a TCP/IP socket. */
