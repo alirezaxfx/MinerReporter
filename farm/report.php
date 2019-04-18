@@ -4,7 +4,7 @@ include 'config.php';
 
 echo '<script src="https://www.kryogenix.org/code/browser/sorttable/sorttable.js"></script>';
 
-
+echo ' <meta http-equiv="refresh" content="60;"> ';
 function restart_miner($ip, $port, $password)
 {
     /* Create a TCP/IP socket. */
@@ -171,7 +171,7 @@ foreach($miners as $minerId => $minerValue){
         if(floor($minerValue["Position"] / 10) != $row)
 	{
 		$row = floor($minerValue["Position"] / 10);
-                echo '\n<tr bgcolor = "#c2c2f0"><th  colspan=18=>Row ';
+                echo '<tr bgcolor = "#c2c2f0"><th  colspan=18=>Row ';
                 echo $row;
                 echo "</th></tr>";
         }

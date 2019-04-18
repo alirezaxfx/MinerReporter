@@ -9,8 +9,11 @@
     
     $arg = "";
     
-    if(isset($_REQUEST["cmd"]))
-        $arg .= " " . $_REQUEST["cmd"];
+    if(isset($_REQUEST["cmd"])){
+	    $arg .= " " . $_REQUEST["cmd"];
+	    if ($_REQUEST["cmd"] == "reboot")
+		    die("U dont have permision");
+    }
     
     if(isset($_REQUEST["minerId"]))
         $arg .= " " . $_REQUEST["minerId"];            
