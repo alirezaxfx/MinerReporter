@@ -34,7 +34,7 @@ function create_temperatures_graph($mtype, $minerId, $output, $start, $end, $tit
         "DEF:CHIP3B=$rrdBasePath/". $minerId ."_temp.rrd:chip3B:AVERAGE",        
         "LINE1:CHIP1B#61cdf4:CHIP 1B",
         "LINE1:CHIP2B#716af4:CHIP 2B",
-	"LINE1:CHIP3B#8641f4:CHIP 3B",
+	"LINE1:CHIP3B#5641f4:CHIP 3B",
 	));
    }   
     $ret = rrd_graph($output, $options);
@@ -109,8 +109,10 @@ function create_hashrate_tot_graph( $output, $start, $end, $title)
     }    
     
     $options = array_merge($options, array (
-            "CDEF:Total=" . $str_5s . $str_pluses, 
-            "LINE1:Total#4bf442:Total",
+	    "CDEF:Total_5s=" . $str_5s . $str_pluses, 
+	    "CDEF:Total_Av=" . $str_av . $str_pluses,
+	    "LINE1:Total_5s#4bf442:Total 5s",
+	    "LINE1:Total_Av#543242:Total Av",
         )
     );
     // var_dump($options);
@@ -185,18 +187,19 @@ if(isset($_REQUEST["minerId"])){
     
     // echo "$startTime   $endTime <br>";
 
-    $miner_stat = report_miner_stat($IP_Prefix . $minerId, 4028);
-    if($miner_stat != NULL){
-    	$record = &$miner_stat->{"STATS"}[1];
-        $d1     = &$miner_stat->{"STATS"}[0];
-    	if($graphType == 1)
-            create_temperatures_graph($d1->{"Type"}, $minerId, "test.png", $startTime, $endTime, "Miner " . $minerId . " Temperatures");
-       else if($graphType == 2){
-            if($minerId == 0)
-                create_hashrate_tot_graph("test.png", $startTime, $endTime, "Miner " . $minerId . " Hashrate");
-            else
+    if($minerId > 0 && $graphType == 1){
+	    $miner_stat = report_miner_stat($IP_Prefix . $minerId, 4028);
+	    if($miner_stat != NULL ){
+    		$record = &$miner_stat->{"STATS"}[1];
+        	$d1     = &$miner_stat->{"STATS"}[0];
+            	create_temperatures_graph($d1->{"Type"}, $minerId, "test.png", $startTime, $endTime, "Miner " . $minerId . " Temperatures");
+	    }
+    }
+    if($graphType == 2){
+    	if($minerId == 0)
+        	create_hashrate_tot_graph("test.png", $startTime, $endTime, "Miner " . $minerId . " Hashrate");
+        else
                 create_hashrate_graph($minerId, "test.png", $startTime, $endTime, "Miner " . $minerId . " Hashrate");
-       }
     }
     
     echo '<img src="test.png" alt="Generated RRD image" >';    

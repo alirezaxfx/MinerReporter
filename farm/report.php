@@ -140,6 +140,7 @@ echo '<table class="sortable" border="1" width="100%">
 			<th title="Fan Information">FI</th>
 			<th title="Device Type">DT</th>
 			<th title="Position">Pos</th>
+			<th title="Reboot">Reboot</th>
     </tr>	
     <thead>
     <tbody>
@@ -167,11 +168,10 @@ $row = 0;
 
 foreach($miners as $minerId => $minerValue){
     
-        if(floor($minerId / 10) != $row)
+        if(floor($minerValue["Position"] / 10) != $row)
 	{
-		$row = floor($minerId / 10);
-
-                echo '\n<tr bgcolor = "#c2c2f0"><th  colspan=17=>Row ';
+		$row = floor($minerValue["Position"] / 10);
+                echo '\n<tr bgcolor = "#c2c2f0"><th  colspan=18=>Row ';
                 echo $row;
                 echo "</th></tr>";
         }
@@ -181,16 +181,16 @@ foreach($miners as $minerId => $minerValue){
     print_cell( $minerId );
 
     
-//    if(!empty($cmd)){
-//        if(strcmp($cmd, "reboot") == 0){
-//            if($arg_miner_id == $minerId ){
-//                restart_miner($IP_Prefix . $arg_miner_id, 22, $minerPassword);
-//                echo "<td>REBOOTING</td>";
-//               echo "</tr>";                
-//              continue;
-//            }
-//        }
-//    }
+    if(!empty($cmd)){
+        if(strcmp($cmd, "reboot") == 0){
+            if($arg_miner_id == $minerId ){
+                restart_miner($IP_Prefix . $arg_miner_id, 22, $minerPassword);
+                echo "<td>REBOOTING</td>";
+               echo "</tr>";                
+              continue;
+            }
+        }
+    }
     
     $miner_stat = report_miner_stat($IP_Prefix . $minerId, 4028);
    // if($minerId == 54)
@@ -251,12 +251,12 @@ foreach($miners as $minerId => $minerValue){
         print_cell($minerValue["FanSpec"]);
         //print_cell($minerValue["DevType"]);
         print_cell($record->{"Type"} . "-" . $minerValue["HT"]);
-        print_cell($minerValue["Position"]);
+        print_cell($minerValue["Position"] % 10);
         
         
-//        echo '<td><form method="POST" style="margin-block-end: auto;"><a href="#" onclick="if(confirm(\'Do you want reboot?\')) parentNode.submit(); else window.location.assign(window.location.href);return false;">Reboot</a><input type="hidden" name="cmd" value="reboot"/><input type="hidden" name="minerId" value="'. $minerId .'" /></form></td>';
+        echo '<td><form method="POST" style="margin-block-end: auto;"><a href="#" onclick="if(confirm(\'Do you want reboot?\')) parentNode.submit(); else window.location.assign(window.location.href);return false;">Reboot</a><input type="hidden" name="cmd" value="reboot"/><input type="hidden" name="minerId" value="'. $minerId .'" /></form></td>';
         
-        // echo '<td><a href="?cmd=reboot&minerId=' . $minerId .'" target="_blank">Reboot</a></td>';
+        //echo '<td><a href="?cmd=reboot&minerId=' . $minerId .'" target="_blank">Reboot</a></td>';
     }
     
     echo "</tr>";
