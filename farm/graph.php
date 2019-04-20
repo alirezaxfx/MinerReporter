@@ -2,6 +2,18 @@
 
 include 'config.php';
 
+echo '
+<script>
+function seperate_graph()
+{
+    if (document.getElementById("seperated_chk").checked) 
+        document.getElementById("minerId").disabled = true;
+    else
+        document.getElementById("minerId").disabled = false;
+}
+</script>
+';
+
 function create_temperatures_graph($mtype, $minerId, $output, $start, $end, $title) 
 {
     global $rrdBasePath;
@@ -140,7 +152,7 @@ if(isset($_REQUEST["graphType"]))
 
 
 
-$html_miner_combox_str = '<select name="minerId" id="minerId">';
+$html_miner_combox_str = '<select name="minerId" id="minerId" '. ( isset($_REQUEST["seperated"]) ? "disabled" : "") .'>';
 foreach($miners as $Id => $minerValue){
     $html_miner_combox_str .= '<option value="'. $Id .'" ' . ($Id == $minerId ? " selected" : "" ) . '>'. $Id .'</option>';
 }
@@ -152,6 +164,8 @@ echo '
 
         <label for="minerId">Miner</label>
         ' . $html_miner_combox_str . '      
+        
+        <input type="checkbox" name="seperated" id="seperated_chk" value="seperated" onClick="seperate_graph();"'. ( isset($_REQUEST["seperated"]) ? "checked" : "") .'>
         <br>
         <br>
 
@@ -180,11 +194,38 @@ echo '
         
 </form>';    
 
-if(isset($_REQUEST["minerId"])){
-    
+if(isset($_REQUEST["seperated"]))
+{
     $startTime = strtotime($startTime);
     $endTime = strtotime($endTime);
     
+    foreach($miners as $minerId => $minerValue){    
+        $graph_file= 'test_'. $minerId .'.png';
+        
+        // echo "$startTime   $endTime <br>";
+        
+        if($minerId > 0 && $graphType == 1){
+            $miner_stat = report_miner_stat($IP_Prefix . $minerId, 4028);
+            if($miner_stat != NULL ){
+                $record = &$miner_stat->{"STATS"}[1];
+                $d1     = &$miner_stat->{"STATS"}[0];
+                    create_temperatures_graph($d1->{"Type"}, $minerId, $graph_file, $startTime, $endTime, "Miner " . $minerId . " Temperatures");
+            }
+        }
+        if($graphType == 2){
+            if($minerId == 0)
+                create_hashrate_tot_graph($graph_file, $startTime, $endTime, "Miner " . $minerId . " Hashrate");
+            else
+                    create_hashrate_graph($minerId, $graph_file, $startTime, $endTime, "Miner " . $minerId . " Hashrate");
+        }
+        
+        echo '<img src="'. $graph_file .'" alt="Generated RRD image" ><br>';
+    }
+}
+else if(isset($_REQUEST["minerId"])){
+    $startTime = strtotime($startTime);
+    $endTime = strtotime($endTime);
+    $graph_file= 'test_'. $minerId .'.png';
     // echo "$startTime   $endTime <br>";
 
     if($minerId > 0 && $graphType == 1){
@@ -192,17 +233,17 @@ if(isset($_REQUEST["minerId"])){
 	    if($miner_stat != NULL ){
     		$record = &$miner_stat->{"STATS"}[1];
         	$d1     = &$miner_stat->{"STATS"}[0];
-            	create_temperatures_graph($d1->{"Type"}, $minerId, "test.png", $startTime, $endTime, "Miner " . $minerId . " Temperatures");
+            	create_temperatures_graph($d1->{"Type"}, $minerId, $graph_file, $startTime, $endTime, "Miner " . $minerId . " Temperatures");
 	    }
     }
     if($graphType == 2){
     	if($minerId == 0)
-        	create_hashrate_tot_graph("test.png", $startTime, $endTime, "Miner " . $minerId . " Hashrate");
+        	create_hashrate_tot_graph($graph_file, $startTime, $endTime, "Miner " . $minerId . " Hashrate");
         else
-                create_hashrate_graph($minerId, "test.png", $startTime, $endTime, "Miner " . $minerId . " Hashrate");
+                create_hashrate_graph($minerId, $graph_file, $startTime, $endTime, "Miner " . $minerId . " Hashrate");
     }
     
-    echo '<img src="test.png" alt="Generated RRD image" >';    
+    echo '<img src="'. $graph_file .'" alt="Generated RRD image" >';
 }
 else {
 
