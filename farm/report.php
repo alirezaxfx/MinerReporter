@@ -47,19 +47,19 @@ function restart_miner($ip, $port, $password)
     return $data;
     */
     
-	$connection=ssh2_connect($ip, $port);
+    $connection=ssh2_connect($ip, $port);
 
-	if (ssh2_auth_password($connection, 'root', $password)) {
-		#echo "Authentication Successful!\n";
-	} else {
-		echo 'Authentication Failed...';
-	}
-	$stream = ssh2_exec($connection, "/sbin/reboot");
-	
-    stream_set_blocking($stream, true);
-	echo stream_get_contents($stream);
+    if (ssh2_auth_password($connection, 'root', $password)) {
+        #echo "Authentication Successful!\n";
+    } else {
+        echo 'Authentication Failed...';
+    }
+    $stream = ssh2_exec($connection, "/sbin/reboot");
     
-	fclose($stream);  
+    stream_set_blocking($stream, true);
+    echo stream_get_contents($stream);
+    
+    fclose($stream);  
     ssh2_disconnect($connection);
 }
 
@@ -85,12 +85,12 @@ function get_fan_value_color($value)
 function get_color_baseon_min_max($value, $min, $max)
 {
     $step = ($max - $min) / 3.0;
-    if($value <= ($min + $step ))
-        return "Green";
-   else if($value >= ($max - $step ) )
-       return "Red";
-   
-   return "";
+        if($value <= ($min + $step ))
+    return "Green";
+        else if($value >= ($max - $step ) )
+    return "Red";
+
+    return "";
 }
 
 function get_temp_value_color($value)
@@ -114,18 +114,18 @@ function get_ghs_value_color($value)
 function secondsToTime($seconds) {
     $dtF = new \DateTime('@0');
     $dtT = new \DateTime("@$seconds");
-    return $dtF->diff($dtT)->format('%a days, %h hours, %i minutes and %s seconds');
+    return $dtF->diff($dtT)->format('%ad %hh %im %ss');
 }
 
 echo '<table class="sortable" border="1" width="100%">
-  
-	<thead>
-	<tr>
-		<th colspan="4">Mining Stats</th>
+
+    <thead>
+    <tr>
+        <th colspan="4">Mining Stats</th>
         <th colspan="3">FAN</th>
         <th colspan="7">Chip Temp</th>
-		<th colspan="5">Device Specification</th>		
-	</tr>
+        <th colspan="5">Device Specification</th>		
+    </tr>
     <tr>
             <th >Miner</th>
             <th >ElapsedTime</th>
@@ -141,10 +141,10 @@ echo '<table class="sortable" border="1" width="100%">
             <th colspan="2">3</th>
             <th>Avg</th>
         
-			<th title="Fan Information">FI</th>
-			<th title="Device Type">DT</th>
-			<th title="Position">Pos</th>
-			<th title="Reboot">Reboot</th>
+            <th title="Fan Information">FI</th>
+            <th title="Device Type">DT</th>
+            <th title="Position">Pos</th>
+            <th title="Reboot">Reboot</th>
     </tr>	
     <thead>
     <tbody>
@@ -162,42 +162,44 @@ if(isset($_REQUEST["minerId"]))
 
 if(isset($argc)){
     if($argc >= 2)
-        $cmd = $argv[1];
+    $cmd = $argv[1];
     
     if($argc >= 3)
-        $arg_miner_id = $argv[2];
+    $arg_miner_id = $argv[2];
 }
 
 $row = 0;
 
+$total_hashrae_5s = 0;
+$total_hashrae_avg = 0;
+
 foreach($miners as $minerId => $minerValue){
     
-        if(floor($minerValue["Position"] / 10) != $row)
-	{
-		$row = floor($minerValue["Position"] / 10);
-                echo '<tr bgcolor = "#c2c2f0"><th  colspan=18=>Row ';
-                echo $row;
-                echo "</th></tr>";
-        }
+    if(floor($minerValue["Position"] / 10) != $row)
+    {
+        $row = floor($minerValue["Position"] / 10);
+        echo '<tr bgcolor = "#c2c2f0"><th  colspan=18=>Row ';
+        echo $row;
+        echo "</th></tr>";
+    }
 
 
-	echo "\n<tr>";    
+    echo "\n<tr>";    
     print_cell( $minerId );
 
-    
     if(!empty($cmd)){
         if(strcmp($cmd, "reboot") == 0){
             if($arg_miner_id == $minerId ){
                 restart_miner($IP_Prefix . $arg_miner_id, 22, $minerPassword);
                 echo "<td>REBOOTING</td>";
-               echo "</tr>";                
-              continue;
+                echo "</tr>";                
+                continue;
             }
         }
     }
     
     $miner_stat = report_miner_stat($IP_Prefix . $minerId, 4028);
-   // if($minerId == 54)
+    // if($minerId == 54)
     // var_dump($miner_stat);
     
     if($miner_stat != NULL){
@@ -205,46 +207,49 @@ foreach($miners as $minerId => $minerValue){
         print_cell(secondsToTime($record->{"Elapsed"}));
         print_cell($record->{"GHS 5s"}, 1, get_ghs_value_color($record->{"GHS 5s"}));
         print_cell($record->{"GHS av"}, 1, get_ghs_value_color($record->{"GHS av"}));
-	       
+        
+        $total_hashrae_5s +=  $record->{"GHS 5s"};
+        $total_hashrae_avg += $record->{"GHS av"};
+        
 
-	$d1 = &$miner_stat->{"STATS"}[0];
-	
+        $d1 = &$miner_stat->{"STATS"}[0];
+        
         if( $d1->{"Type"} == "Antminer S11")
         {
 
-	print_cell($record->{"fan1"}, 1, get_fan_value_color($record->{"fan1"}));
-        print_cell($record->{"fan2"}, 1, get_fan_value_color($record->{"fan2"}));
-        print_cell($record->{"fan1"} + $record->{"fan2"} );
+            print_cell($record->{"fan1"}, 1, get_fan_value_color($record->{"fan1"}));
+            print_cell($record->{"fan2"}, 1, get_fan_value_color($record->{"fan2"}));
+            print_cell($record->{"fan1"} + $record->{"fan2"} );
 
 
-	print_cell($record->{"temp3_1"}, 1, get_color_baseon_min_max($record->{"temp3_1"}, CHIP_TEMP_MIN, CHIP_TEMP_MAX));
-	print_cell($record->{"temp2_1"}, 1, get_color_baseon_min_max($record->{"temp2_1"}, CHIP_TEMP_MIN, CHIP_TEMP_MAX));
+            print_cell($record->{"temp3_1"}, 1, get_color_baseon_min_max($record->{"temp3_1"}, CHIP_TEMP_MIN, CHIP_TEMP_MAX));
+            print_cell($record->{"temp2_1"}, 1, get_color_baseon_min_max($record->{"temp2_1"}, CHIP_TEMP_MIN, CHIP_TEMP_MAX));
 
-	print_cell($record->{"temp3_2"}, 1, get_color_baseon_min_max($record->{"temp3_2"}, CHIP_TEMP_MIN, CHIP_TEMP_MAX));
-	 print_cell($record->{"temp2_2"}, 1, get_color_baseon_min_max($record->{"temp2_2"}, CHIP_TEMP_MIN, CHIP_TEMP_MAX));
+            print_cell($record->{"temp3_2"}, 1, get_color_baseon_min_max($record->{"temp3_2"}, CHIP_TEMP_MIN, CHIP_TEMP_MAX));
+            print_cell($record->{"temp2_2"}, 1, get_color_baseon_min_max($record->{"temp2_2"}, CHIP_TEMP_MIN, CHIP_TEMP_MAX));
 
-        print_cell($record->{"temp3_3"}, 1, get_color_baseon_min_max($record->{"temp3_3"}, CHIP_TEMP_MIN, CHIP_TEMP_MAX));
-        print_cell($record->{"temp2_3"}, 1, get_color_baseon_min_max($record->{"temp2_3"}, CHIP_TEMP_MIN, CHIP_TEMP_MAX));
+            print_cell($record->{"temp3_3"}, 1, get_color_baseon_min_max($record->{"temp3_3"}, CHIP_TEMP_MIN, CHIP_TEMP_MAX));
+            print_cell($record->{"temp2_3"}, 1, get_color_baseon_min_max($record->{"temp2_3"}, CHIP_TEMP_MIN, CHIP_TEMP_MAX));
 
 
-        $avg = round(($record->{"temp3_1"} + $record->{"temp3_2"} + $record->{"temp3_3"} + $record->{"temp2_1"} + $record->{"temp2_2"} + $record->{"temp2_3"} ) / 6, 1);
-        print_cell( $avg, 1, get_color_baseon_min_max($avg, CHIP_TEMP_MIN, CHIP_TEMP_MAX));
+            $avg = round(($record->{"temp3_1"} + $record->{"temp3_2"} + $record->{"temp3_3"} + $record->{"temp2_1"} + $record->{"temp2_2"} + $record->{"temp2_3"} ) / 6, 1);
+            print_cell( $avg, 1, get_color_baseon_min_max($avg, CHIP_TEMP_MIN, CHIP_TEMP_MAX));
 
-	}
-	else
-	{
-	print_cell($record->{"fan3"}, 1, get_fan_value_color($record->{"fan3"}));
-        print_cell($record->{"fan6"}, 1, get_fan_value_color($record->{"fan6"}));
-        print_cell($record->{"fan3"} + $record->{"fan6"} );                
+        }
+        else
+        {
+            print_cell($record->{"fan3"}, 1, get_fan_value_color($record->{"fan3"}));
+            print_cell($record->{"fan6"}, 1, get_fan_value_color($record->{"fan6"}));
+            print_cell($record->{"fan3"} + $record->{"fan6"} );                
 
-       
-        print_cell($record->{"temp2_6"}, 2, get_color_baseon_min_max($record->{"temp2_6"}, CHIP_TEMP_MIN, CHIP_TEMP_MAX));
-        print_cell($record->{"temp2_7"}, 2, get_color_baseon_min_max($record->{"temp2_7"}, CHIP_TEMP_MIN, CHIP_TEMP_MAX));
-        print_cell($record->{"temp2_8"}, 2, get_color_baseon_min_max($record->{"temp2_8"}, CHIP_TEMP_MIN, CHIP_TEMP_MAX));
-        $avg = round(($record->{"temp2_6"} + $record->{"temp2_7"} + $record->{"temp2_8"} ) / 3, 1);
-        print_cell( $avg, 1, get_color_baseon_min_max($avg, CHIP_TEMP_MIN, CHIP_TEMP_MAX));
-       
-	}
+            
+            print_cell($record->{"temp2_6"}, 2, get_color_baseon_min_max($record->{"temp2_6"}, CHIP_TEMP_MIN, CHIP_TEMP_MAX));
+            print_cell($record->{"temp2_7"}, 2, get_color_baseon_min_max($record->{"temp2_7"}, CHIP_TEMP_MIN, CHIP_TEMP_MAX));
+            print_cell($record->{"temp2_8"}, 2, get_color_baseon_min_max($record->{"temp2_8"}, CHIP_TEMP_MIN, CHIP_TEMP_MAX));
+            $avg = round(($record->{"temp2_6"} + $record->{"temp2_7"} + $record->{"temp2_8"} ) / 3, 1);
+            print_cell( $avg, 1, get_color_baseon_min_max($avg, CHIP_TEMP_MIN, CHIP_TEMP_MAX));
+            
+        }
         //print_cell( ( $record->{"fan3"} + $record->{"fan6"} ) * round(($record->{"temp6"} + 15 + $record->{"temp7"} + 15 + $record->{"temp8"} + 15) / 3, 2));        
         
         // Specifications
@@ -265,7 +270,9 @@ foreach($miners as $minerId => $minerValue){
     
     echo "</tr>";
 }
-
 echo "\n</tbody>\n</table>";
+
+echo '<br> Hashrate_5s Total: ' . round($total_hashrae_5s / 1000.0, 2). " TH" ; 
+echo '<br> Hashrate_av Total: ' . round($total_hashrae_avg / 1000.0, 2 ) . " TH" ; 
 
 ?>
