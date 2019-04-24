@@ -102,11 +102,11 @@ function get_temp_value_color($value)
     return "";
 }
 
-function get_ghs_value_color($value)
+function get_ghs_value_color($value, $max_hashrate)
 {
-    if( $value < 14100 )
+    if( $value < ($max_hashrate * 0.97) )
         return "Red";
-    else if( $value > 14500 )
+    else if( $value > $max_hashrate )
         return "Green";
     return "";    
 }
@@ -205,8 +205,11 @@ foreach($miners as $minerId => $minerValue){
     if($miner_stat != NULL){
         $record = &$miner_stat->{"STATS"}[1];
         print_cell(secondsToTime($record->{"Elapsed"}));
-        print_cell($record->{"GHS 5s"}, 1, get_ghs_value_color($record->{"GHS 5s"}));
-        print_cell($record->{"GHS av"}, 1, get_ghs_value_color($record->{"GHS av"}));
+        
+        $max_hashrate = preg_replace("/[^0-9.]/", "", $minerValue["HT"] );
+        
+        print_cell($record->{"GHS 5s"}, 1, get_ghs_value_color($record->{"GHS 5s"}, $max_hashrate * 1000 ));
+        print_cell($record->{"GHS av"}, 1, get_ghs_value_color($record->{"GHS av"}, $max_hashrate * 1000 ));
         
         $total_hashrae_5s +=  $record->{"GHS 5s"};
         $total_hashrae_avg += $record->{"GHS av"};
