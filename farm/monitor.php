@@ -18,7 +18,11 @@ function send_sms($phone, $text)
     global $modem_ip_addr;
     global $modem_username;
     global $modem_password;
+    
+    global $last_send_sms;
+    
     $cur_timestamp = time();
+    
    
     if( $cur_timestamp > ($last_send_sms + 1200) ){
         $last_send_sms = $cur_timestamp;
@@ -55,7 +59,7 @@ while(true)
                                                 , $record->{"temp3_3"}
                             , $record->{"temp2_3"}
                         ));
-                    if( $record->{"temp2_1"} > HIGH_TEMP_DMG 
+                    if(    $record->{"temp2_1"} > HIGH_TEMP_DMG 
                         || $record->{"temp2_2"} > HIGH_TEMP_DMG
                         || $record->{"temp2_3"} > HIGH_TEMP_DMG
                         || $record->{"temp3_1"} > HIGH_TEMP_DMG
