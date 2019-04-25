@@ -14,13 +14,17 @@ function send_sms($phone, $text)
     global $modemTypes;
     global $BasePath;
     
-    if($modemTypes == "Huawei-b612") {
-        $cmd = "python3.5 " . $BasePath . "send_sms.py " . $phone . " \"" . $text . "\"";
+    global $modemTypes;
+    global $modem_ip_addr;
+    global $modem_username;
+    global $modem_password;
+    $cur_timestamp = time();
+   
+    if( $cur_timestamp > ($last_send_sms + 1200) ){
+        $last_send_sms = $cur_timestamp;
+        $cmd = "python3.5 $BasePath"."$modemTypes.py $modem_ip_addr $modem_username $modem_password $phone \"$text\"";
         echo $cmd . "\n";
         $output = shell_exec($cmd);
-    }
-    else{
-        echo "Send SMS Failed Because unknown modem type\n";
     }
 }
 

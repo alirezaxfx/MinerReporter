@@ -23,10 +23,9 @@ def quick_login2(username: str, password: str, modem_host: str = None):
     return ctx
 
 
-print ('Send SMS to %s Content:\'%s\'\n' % (sys.argv[1], sys.argv[2]))
+print ('Send SMS to %s:%s@%s Phone:%s Content:\'%s\'\n' % (sys.argv[2], sys.argv[3], sys.argv[1],sys.argv[4], sys.argv[5]))
 
-ctx = quick_login2("admin", "alireza1368", modem_host='192.168.5.2')
+ctx = quick_login2(sys.argv[2], sys.argv[3], modem_host=sys.argv[1])
 #print(ctx)
 # sending sms
-huaweisms.api.sms.send_sms( ctx, sys.argv[1], sys.argv[2] )
-
+huaweisms.api.sms.send_sms( ctx, sys.argv[4], sys.argv[5] )
