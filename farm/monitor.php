@@ -26,7 +26,7 @@ function send_sms($phone, $text)
    
     if( $cur_timestamp > ($last_send_sms + 1200) ){
         $last_send_sms = $cur_timestamp;
-        $cmd = "python3.5 $BasePath"."$modemTypes.py $modem_ip_addr $modem_username $modem_password $phone \"$text\"";
+        $cmd = "python3 $BasePath"."$modemTypes.py $modem_ip_addr $modem_username $modem_password $phone \"$text\"";
         echo $cmd . "\n";
         $output = shell_exec($cmd);
     }
@@ -58,7 +58,9 @@ while(true)
                                                 , $record->{"temp2_2"}
                                                 , $record->{"temp3_3"}
                             , $record->{"temp2_3"}
-                        ));
+		    ));
+
+		    // S11
                     if(    $record->{"temp2_1"} > HIGH_TEMP_DMG 
                         || $record->{"temp2_2"} > HIGH_TEMP_DMG
                         || $record->{"temp2_3"} > HIGH_TEMP_DMG
@@ -77,6 +79,7 @@ while(true)
                                             , $record->{"temp2_8"}
                     ));
 
+		    // S9
                     if( $record->{"temp2_6"} > HIGH_TEMP_DMG 
                         || $record->{"temp2_7"} > HIGH_TEMP_DMG
                         || $record->{"temp2_8"} > HIGH_TEMP_DMG )
