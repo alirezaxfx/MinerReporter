@@ -9,6 +9,8 @@ import sys
 
 from huaweisms.api.common import common_headers, ApiCtx, post_to_url, get_from_url
 
+# https://github.com/pablo/huawei-modem-python-api-client
+
 def quick_login2(username: str, password: str, modem_host: str = None):
     ctx = ApiCtx(modem_host=modem_host)
     token = huaweisms.api.webserver.get_session_token_info(ctx.api_base_url)
