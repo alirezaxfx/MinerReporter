@@ -1,9 +1,28 @@
 <?php
 
+// ATTENTION THIS FILE MUST RUN AS ROOT
+
 include 'config.php';
 
 
 system("mkdir -p $rrdBasePath");
+
+$last_send_sms=0;
+
+function send_sms($phone, $text)
+{
+    global $modemTypes;
+    global $BasePath;
+    
+    if($modemTypes == "Huawei-b612") {
+        $cmd = "python3.5 " . $BasePath . "send_sms.py " . $phone . " \"" . $text . "\"";
+        echo $cmd . "\n";
+        $output = shell_exec($cmd);
+    }
+    else{
+        echo "Send SMS Failed Because unknown modem type\n";
+    }
+}
 
 while(true)
 {
@@ -16,70 +35,87 @@ while(true)
         if($miner_stat != NULL){
             $record = &$miner_stat->{"STATS"}[1];            
             $d1     = &$miner_stat->{"STATS"}[0];
-            
-            
+
             /*************************************************************/            
             /********************    Temperatures    *********************/
             /*************************************************************/            
-	    $rrdPath = $rrdBasePath . "/" . $minerId . "_temp" . ".rrd";
-	    if (file_exists($rrdPath)) {
-        	if( $d1->{"Type"} == "Antminer S11"){
-		    $options = array(sprintf("%d:%d:%d:%d:%d:%d:%d"
-                                            , $rrd_index_timestamp
-                                            , $record->{"temp3_1"}
-                                            , $record->{"temp2_1"}
-                                            , $record->{"temp3_2"}
-                                            , $record->{"temp2_2"}
-                                            , $record->{"temp3_3"}
-					    , $record->{"temp2_3"}
-				    ));
-		}   
-		else{
+            $rrdPath = $rrdBasePath . "/" . $minerId . "_temp" . ".rrd";
+            if (file_exists($rrdPath)) {
+                if( $d1->{"Type"} == "Antminer S11"){
+                    $options = array(sprintf("%d:%d:%d:%d:%d:%d:%d"
+                                                , $rrd_index_timestamp
+                                                , $record->{"temp3_1"}
+                                                , $record->{"temp2_1"}
+                                                , $record->{"temp3_2"}
+                                                , $record->{"temp2_2"}
+                                                , $record->{"temp3_3"}
+                            , $record->{"temp2_3"}
+                        ));
+                    if( $record->{"temp2_1"} > HIGH_TEMP_DMG 
+                        || $record->{"temp2_2"} > HIGH_TEMP_DMG
+                        || $record->{"temp2_3"} > HIGH_TEMP_DMG
+                        || $record->{"temp3_1"} > HIGH_TEMP_DMG
+                        || $record->{"temp3_2"} > HIGH_TEMP_DMG
+                        || $record->{"temp3_3"} > HIGH_TEMP_DMG )
+                    {
+                        send_sms($sms_phone_alert, $sms_temp_text);
+                    }                    
+                }   
+                else{
                     $options = array(sprintf("%d:%d:%d:%d"
                                             , $rrd_index_timestamp
                                             , $record->{"temp2_6"}
                                             , $record->{"temp2_7"}
                                             , $record->{"temp2_8"}
-				    )); 
-		}
+                    ));
+
+                    if( $record->{"temp2_6"} > HIGH_TEMP_DMG 
+                        || $record->{"temp2_7"} > HIGH_TEMP_DMG
+                        || $record->{"temp2_8"} > HIGH_TEMP_DMG )
+                    {
+                        send_sms($sms_phone_alert, $sms_temp_text);
+                    }                       
+                    
+                }
                 if (!rrd_update($rrdPath, $options)) {
                     echo "RRD UPDATE on temperatures ERROR:" . rrd_error() . "\n";
                 }
             }
-	    else{
-               if( $d1->{"Type"} == "Antminer S11"){
-	                $options = array(
-          	        "--step", "60",            // Use a step-size of 1 minutes
-                  	"DS:chip1A:GAUGE:60:-35:150",
-			"DS:chip1B:GAUGE:60:-35:150",
+            else{
+                if( $d1->{"Type"} == "Antminer S11"){
+                        $options = array(
+                        "--step", "60",            // Use a step-size of 1 minutes
+                        "DS:chip1A:GAUGE:60:-35:150",
+                        "DS:chip1B:GAUGE:60:-35:150",
 
-                    	"DS:chip2A:GAUGE:60:-35:150",
-                    	"DS:chip2B:GAUGE:60:-35:150",
-			
-			"DS:chip3A:GAUGE:60:-35:150",
-                    	"DS:chip3B:GAUGE:60:-35:150",
-			
-               		"RRA:AVERAGE:0.5:1:2880",
-                 	"RRA:AVERAGE:0.5:5:3360",
-                   	"RRA:AVERAGE:0.5:24:3660",
-               		"RRA:AVERAGE:0.5:144:7300"
-               );
-		}
-	      else{
-                $options = array(
-                    "--step", "60",            // Use a step-size of 1 minutes
-		    "DS:chip1A:GAUGE:60:-35:150",
+                        "DS:chip2A:GAUGE:60:-35:150",
+                        "DS:chip2B:GAUGE:60:-35:150",
+                
+                        "DS:chip3A:GAUGE:60:-35:150",
+                        "DS:chip3B:GAUGE:60:-35:150",
+                
+                        "RRA:AVERAGE:0.5:1:2880",
+                        "RRA:AVERAGE:0.5:5:3360",
+                        "RRA:AVERAGE:0.5:24:3660",
+                        "RRA:AVERAGE:0.5:144:7300"
+                   );
+                }
+                else{
+                    $options = array(
+                        "--step", "60",            // Use a step-size of 1 minutes
+                        "DS:chip1A:GAUGE:60:-35:150",
 
-		    "DS:chip2A:GAUGE:60:-35:150",
+                        "DS:chip2A:GAUGE:60:-35:150",
 
-                    "DS:chip3A:GAUGE:60:-35:150",
-                    
-                    "RRA:AVERAGE:0.5:1:2880",
-                    "RRA:AVERAGE:0.5:5:3360",
-                    "RRA:AVERAGE:0.5:24:3660",
-                    "RRA:AVERAGE:0.5:144:7300"
-                );
-	      }
+                        "DS:chip3A:GAUGE:60:-35:150",
+                        
+                        "RRA:AVERAGE:0.5:1:2880",
+                        "RRA:AVERAGE:0.5:5:3360",
+                        "RRA:AVERAGE:0.5:24:3660",
+                        "RRA:AVERAGE:0.5:144:7300"
+                    );
+                }
+                
                 $ret = rrd_create($rrdPath, $options);
                 if (! $ret) {
                     echo "<b>Creation $rrdPath error: </b>".rrd_error()."\n";
@@ -118,10 +154,6 @@ while(true)
                     echo "<b>Creation $rrdPath error: </b>".rrd_error()."\n";
                 }            
             }
-            
-            
-            
-            
         }
     }
     // end

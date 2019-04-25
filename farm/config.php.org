@@ -8,9 +8,17 @@ define('PCB_TEMP_MAX',85);
 define('CHIP_TEMP_MIN',65);
 define('CHIP_TEMP_MAX',110);
 
+define('HIGH_TEMP_DMG', 90);
+
 $minerPassword="alireza1368!@#";
 $IP_Prefix = "192.168.5.";
-$rrdBasePath="/var/www/html/farm/rrdfiles/";
+$BasePath="/var/www/html/farm/";
+$rrdBasePath= $BasePath . "rrdfiles/";
+
+$sms_phone_alert="989122841098";
+$sms_temp_text = "ATTENTION TEMPRATURE TOO HIGH !!!";
+// for Modem Huawei-b612 need -->> sudo pip3 install huawei-modem-api-client  // ATTENTIONS RUN TWO TIMES
+$modemTypes="Huawei-b612"; // Can Be Huawei-b612, ...
 
 $miners = array( 
 				31 => array ( "Position" => "11", "FanSpec" => "B-XXXX", "HT" => "14.5T" ), 
