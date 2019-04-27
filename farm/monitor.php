@@ -7,6 +7,8 @@ include 'config.php';
 
 system("mkdir -p $rrdBasePath");
 
+openlog("Monitoring", LOG_PID | LOG_PERROR, LOG_LOCAL0);
+
 $last_send_sms=0;
 
 function send_sms($phone, $text)
@@ -68,7 +70,8 @@ while(true)
                         || $record->{"temp3_2"} > HIGH_TEMP_DMG
                         || $record->{"temp3_3"} > HIGH_TEMP_DMG )
                     {
-                        send_sms($sms_phone_alert, $sms_temp_text);
+                        syslog(LOG_WARNING, $sms_temp_text . " Miner: $minerId");
+                        send_sms($sms_phone_alert, $sms_temp_text . ". $minerId");
                     }                    
                 }   
                 else{
@@ -84,7 +87,8 @@ while(true)
                         || $record->{"temp2_7"} > HIGH_TEMP_DMG
                         || $record->{"temp2_8"} > HIGH_TEMP_DMG )
                     {
-                        send_sms($sms_phone_alert, $sms_temp_text);
+                        syslog(LOG_WARNING, $sms_temp_text . " Miner: $minerId");
+                        send_sms($sms_phone_alert, $sms_temp_text . ". $minerId");
                     }                       
                     
                 }
