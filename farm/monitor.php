@@ -62,7 +62,7 @@ while(true)
                             , $record->{"temp2_3"}
 		    ));
 
-		    // S11
+                    // S11
                     if(    $record->{"temp2_1"} > HIGH_TEMP_DMG 
                         || $record->{"temp2_2"} > HIGH_TEMP_DMG
                         || $record->{"temp2_3"} > HIGH_TEMP_DMG
@@ -70,8 +70,15 @@ while(true)
                         || $record->{"temp3_2"} > HIGH_TEMP_DMG
                         || $record->{"temp3_3"} > HIGH_TEMP_DMG )
                     {
-                        syslog(LOG_WARNING, $sms_temp_text . " Miner: $minerId");
-                        send_sms($sms_phone_alert, $sms_temp_text . ". $minerId");
+                        $maxTemp = max(  $record->{"temp2_1"}, 
+                                        $record->{"temp2_2"},
+                                        $record->{"temp2_3"},
+                                        $record->{"temp3_1"},
+                                        $record->{"temp3_2"},
+                                        $record->{"temp3_3"}
+                                );
+                        syslog(LOG_WARNING, $sms_temp_text . " Miner: $minerId Temp:$maxTemp");
+                        send_sms($sms_phone_alert, $sms_temp_text . "$minerId $maxTemp");
                     }                    
                 }   
                 else{
@@ -82,13 +89,17 @@ while(true)
                                             , $record->{"temp2_8"}
                     ));
 
-		    // S9
+                    // S9           
                     if( $record->{"temp2_6"} > HIGH_TEMP_DMG 
                         || $record->{"temp2_7"} > HIGH_TEMP_DMG
                         || $record->{"temp2_8"} > HIGH_TEMP_DMG )
                     {
-                        syslog(LOG_WARNING, $sms_temp_text . " Miner: $minerId");
-                        send_sms($sms_phone_alert, $sms_temp_text . ". $minerId");
+                        $maxTemp = max(  $record->{"temp2_6"}, 
+                                        $record->{"temp2_7"},
+                                        $record->{"temp2_8"}
+                                );
+                        syslog(LOG_WARNING, $sms_temp_text . " Miner: $minerId Temp:$maxTemp");
+                        send_sms($sms_phone_alert, $sms_temp_text . "$minerId $maxTemp"); 
                     }                       
                     
                 }
