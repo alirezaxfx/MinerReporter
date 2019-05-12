@@ -32,9 +32,9 @@ function create_temperatures_graph($mtype, $minerId, $output, $start, $end, $tit
         "DEF:CHIP2A=$rrdBasePath/". $minerId ."_temp.rrd:chip2A:AVERAGE",
         "DEF:CHIP3A=$rrdBasePath/". $minerId ."_temp.rrd:chip3A:AVERAGE",        
         
-        "LINE1:CHIP1A#41cdf4:CHIP 1A",
-        "LINE1:CHIP2A#416af4:CHIP 2A",
-        "LINE1:CHIP3A#7641f4:CHIP 3A",
+        "LINE1:CHIP1A#4259f4:CHIP 1A",
+        "LINE1:CHIP2A#eb41f4:CHIP 2A",
+        "LINE1:CHIP3A#f44141:CHIP 3A",
         
         
 );
@@ -44,9 +44,9 @@ function create_temperatures_graph($mtype, $minerId, $output, $start, $end, $tit
         "DEF:CHIP1B=$rrdBasePath/". $minerId ."_temp.rrd:chip1B:AVERAGE",
         "DEF:CHIP2B=$rrdBasePath/". $minerId ."_temp.rrd:chip2B:AVERAGE",
         "DEF:CHIP3B=$rrdBasePath/". $minerId ."_temp.rrd:chip3B:AVERAGE",        
-        "LINE1:CHIP1B#61cdf4:CHIP 1B",
-        "LINE1:CHIP2B#716af4:CHIP 2B",
-	"LINE1:CHIP3B#5641f4:CHIP 3B",
+        "LINE1:CHIP1B#f4f141:CHIP 1B",
+        "LINE1:CHIP2B#67f441:CHIP 2B",
+        "LINE1:CHIP3B#f4a341:CHIP 3B",
 	));
    }   
     $ret = rrd_graph($output, $options);
@@ -219,7 +219,7 @@ if(isset($_REQUEST["seperated"]))
                     create_hashrate_graph($minerId, $graph_file, $startTime, $endTime, "Miner " . $minerId . " Hashrate");
         }
         
-        echo '<img src="'. $graph_file .'" alt="Generated RRD image" ><br>';
+        echo '<img src="'. $graph_file .'?nocache=' . time() . '" alt="Generated RRD image" ><br>';
     }
 }
 else if(isset($_REQUEST["minerId"])){

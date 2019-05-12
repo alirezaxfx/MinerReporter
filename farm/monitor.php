@@ -59,26 +59,31 @@ while(true)
                                                 , $record->{"temp3_2"}
                                                 , $record->{"temp2_2"}
                                                 , $record->{"temp3_3"}
-                            , $record->{"temp2_3"}
+												, $record->{"temp2_3"}
 		    ));
 
                     // S11
-                    if(    $record->{"temp2_1"} > HIGH_TEMP_DMG 
-                        || $record->{"temp2_2"} > HIGH_TEMP_DMG
-                        || $record->{"temp2_3"} > HIGH_TEMP_DMG
-                        || $record->{"temp3_1"} > HIGH_TEMP_DMG
+                    if(    $record->{"temp3_1"} > HIGH_TEMP_DMG 
+                        || $record->{"temp2_1"} > HIGH_TEMP_DMG
                         || $record->{"temp3_2"} > HIGH_TEMP_DMG
-                        || $record->{"temp3_3"} > HIGH_TEMP_DMG )
+                        || $record->{"temp2_2"} > HIGH_TEMP_DMG
+                        || $record->{"temp3_3"} > HIGH_TEMP_DMG
+                        || $record->{"temp2_3"} > HIGH_TEMP_DMG )
                     {
-                        $maxTemp = max(  $record->{"temp2_1"}, 
-                                        $record->{"temp2_2"},
-                                        $record->{"temp2_3"},
-                                        $record->{"temp3_1"},
+                        $maxTemp = max( $record->{"temp3_1"}, 
+                                        $record->{"temp2_1"},
                                         $record->{"temp3_2"},
-                                        $record->{"temp3_3"}
+                                        $record->{"temp2_2"},
+                                        $record->{"temp3_3"},
+                                        $record->{"temp2_3"}
                                 );
                         syslog(LOG_WARNING, $sms_temp_text . " Miner: $minerId Temp:$maxTemp");
-                        send_sms($sms_phone_alert, $sms_temp_text . "$minerId $maxTemp");
+                        //send_sms($sms_phone_alert, $sms_temp_text . "$minerId $maxTemp");
+						send_sms($sms_phone_alert, $sms_temp_text . "$minerId " 
+							. $record->{"temp3_1"} . " " . $record->{"temp2_1"} . " - "
+							. $record->{"temp3_2"} . " " . $record->{"temp2_2"} . " - "
+							. $record->{"temp3_3"} . " " . $record->{"temp2_3"} . " - "
+							); 
                     }                    
                 }   
                 else{
@@ -90,35 +95,36 @@ while(true)
                     ));
 
                     // S9           
-                    if( $record->{"temp2_6"} > HIGH_TEMP_DMG 
+                    if(    $record->{"temp2_6"} > HIGH_TEMP_DMG 
                         || $record->{"temp2_7"} > HIGH_TEMP_DMG
                         || $record->{"temp2_8"} > HIGH_TEMP_DMG )
                     {
-                        $maxTemp = max(  $record->{"temp2_6"}, 
+                        $maxTemp = max( $record->{"temp2_6"}, 
                                         $record->{"temp2_7"},
                                         $record->{"temp2_8"}
                                 );
                         syslog(LOG_WARNING, $sms_temp_text . " Miner: $minerId Temp:$maxTemp");
-                        send_sms($sms_phone_alert, $sms_temp_text . "$minerId $maxTemp"); 
+						//send_sms($sms_phone_alert, $sms_temp_text . "$minerId $maxTemp");
+                        send_sms($sms_phone_alert, $sms_temp_text . "$minerId " . $record->{"temp2_6"} . " " . $record->{"temp2_7"} . " " . $record->{"temp2_8"}); 
                     }                       
                     
                 }
                 if (!rrd_update($rrdPath, $options)) {
-                    echo "RRD UPDATE on temperatures ERROR:" . rrd_error() . "\n";
+                    syslog(LOG_ERR, "RRD ERROR Update on temperatures ERROR:" . rrd_error() . "\n");
                 }
             }
             else{
                 if( $d1->{"Type"} == "Antminer S11"){
                         $options = array(
                         "--step", "60",            // Use a step-size of 1 minutes
-                        "DS:chip1A:GAUGE:60:-35:150",
-                        "DS:chip1B:GAUGE:60:-35:150",
+                        "DS:chip1A:GAUGE:60:-35:160",
+                        "DS:chip1B:GAUGE:60:-35:160",
 
-                        "DS:chip2A:GAUGE:60:-35:150",
-                        "DS:chip2B:GAUGE:60:-35:150",
+                        "DS:chip2A:GAUGE:60:-35:160",
+                        "DS:chip2B:GAUGE:60:-35:160",
                 
-                        "DS:chip3A:GAUGE:60:-35:150",
-                        "DS:chip3B:GAUGE:60:-35:150",
+                        "DS:chip3A:GAUGE:60:-35:160",
+                        "DS:chip3B:GAUGE:60:-35:160",
                 
                         "RRA:AVERAGE:0.5:1:2880",
                         "RRA:AVERAGE:0.5:5:3360",
@@ -129,11 +135,11 @@ while(true)
                 else{
                     $options = array(
                         "--step", "60",            // Use a step-size of 1 minutes
-                        "DS:chip1A:GAUGE:60:-35:150",
+                        "DS:chip1A:GAUGE:60:-35:160",
 
-                        "DS:chip2A:GAUGE:60:-35:150",
+                        "DS:chip2A:GAUGE:60:-35:160",
 
-                        "DS:chip3A:GAUGE:60:-35:150",
+                        "DS:chip3A:GAUGE:60:-35:160",
                         
                         "RRA:AVERAGE:0.5:1:2880",
                         "RRA:AVERAGE:0.5:5:3360",
@@ -144,7 +150,7 @@ while(true)
                 
                 $ret = rrd_create($rrdPath, $options);
                 if (! $ret) {
-                    echo "<b>Creation $rrdPath error: </b>".rrd_error()."\n";
+                    syslog(LOG_ERR, "RRD ERROR Creation $rrdPath error:".rrd_error()."\n");
                 }                         
             }
             
@@ -160,7 +166,7 @@ while(true)
                                             , $record->{"GHS av"} / 1000.0
                                         ));
                 if (!rrd_update($rrdPath, $options)) {
-                    echo "RRD UPDATE on hashrate ERROR:" . rrd_error() . "\n";
+                    syslog(LOG_ERR, "RRD ERROR Update on hashrate ERROR:" . rrd_error() . "\n");
                 }                                   
             }
             else{
@@ -177,7 +183,7 @@ while(true)
                 
                 $ret = rrd_create($rrdPath, $options);
                 if (! $ret) {
-                    echo "<b>Creation $rrdPath error: </b>".rrd_error()."\n";
+                    syslog(LOG_ERR, "RRD ERROR Creation $rrdPath error: ".rrd_error()."\n");
                 }            
             }
         }
