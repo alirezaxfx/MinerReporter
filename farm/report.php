@@ -4,7 +4,14 @@ include 'config.php';
 
 echo '<script src="https://www.kryogenix.org/code/browser/sorttable/sorttable.js"></script>';
 
-echo ' <meta http-equiv="refresh" content="60;"> ';
+echo ' 
+<meta http-equiv="refresh" content="60;"> 
+<meta http-equiv="cache-control" content="max-age=0" />
+<meta http-equiv="cache-control" content="no-cache" />
+<meta http-equiv="expires" content="0" />
+<meta http-equiv="expires" content="Tue, 01 Jan 1980 1:00:00 GMT" />
+<meta http-equiv="pragma" content="no-cache" />
+';
 
 echo 'Today is '.date("Y-m-d, D G:i", time()) . "<br><br>";
 
@@ -124,7 +131,7 @@ echo '<table class="sortable" border="1" width="100%">
         <th colspan="4">Mining Stats</th>
         <th colspan="3">FAN</th>
         <th colspan="7">Chip Temp</th>
-        <th colspan="5">Device Specification</th>		
+        <th colspan="3">Device Specification</th>		
     </tr>
     <tr>
             <th >Miner</th>
@@ -141,7 +148,6 @@ echo '<table class="sortable" border="1" width="100%">
             <th colspan="2">3</th>
             <th>Avg</th>
         
-            <th title="Fan Information">FI</th>
             <th title="Device Type">DT</th>
             <th title="Position">Pos</th>
             <th title="Reboot">Reboot</th>
@@ -241,9 +247,9 @@ foreach($miners as $minerId => $minerValue){
         }
         else
         {
-            print_cell($record->{"fan3"}, 1, get_fan_value_color($record->{"fan3"}));
+            print_cell($record->{"fan5"}, 1, get_fan_value_color($record->{"fan5"}));
             print_cell($record->{"fan6"}, 1, get_fan_value_color($record->{"fan6"}));
-            print_cell($record->{"fan3"} + $record->{"fan6"} );                
+            print_cell($record->{"fan5"} + $record->{"fan6"} );                
 
             
             print_cell($record->{"temp2_6"}, 2, get_color_baseon_min_max($record->{"temp2_6"}, CHIP_TEMP_MIN, CHIP_TEMP_MAX));
@@ -260,8 +266,8 @@ foreach($miners as $minerId => $minerValue){
 
         
         
-        print_cell($minerValue["FanSpec"]);
-        //print_cell($minerValue["DevType"]);
+        // print_cell($minerValue["FanSpec"]);
+        // print_cell($minerValue["DevType"]);
         print_cell($record->{"Type"} . "-" . $minerValue["HT"]);
         print_cell($minerValue["Position"] % 10);
         
