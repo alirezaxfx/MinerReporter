@@ -1,0 +1,39 @@
+#!/bin/sh -e
+#
+# rc.local
+#
+# This script is executed at the end of each multiuser runlevel.
+# Make sure that the script will "exit 0" on success or any other
+# value on error.
+#
+# In order to enable or disable this script just change the execution
+# bits.
+#
+# By default this script does nothing.
+
+# Print the IP address
+_IP=$(hostname -I) || true
+if [ "$_IP" ]; then
+  printf "My IP address is %s\n" "$_IP"
+fi
+
+nohup /var/www/html/scripts/start_ssh.sh >/dev/null&
+nohup /var/www/html/scripts/start_ssh2.sh >/dev/null&
+nohup php /var/www/html/farm/monitor.php >/dev/null&
+
+sleep 5
+#echo 200 mci >> /etc/iproute2/rt_tables
+ip addr add 192.168.5.21/24 dev eth0
+
+ip route add 192.168.5.0/24 dev eth0 src 192.168.5.21 table mci
+ip route add default via 192.168.5.3 dev eth0 table mci
+
+ip rule add from 192.168.5.21 table mci
+#ip rule add to 192.168.5.21 dev eth0 table mci
+#ip rule add from 192.168.5.21 dev eth0 table mci
+
+nohup /home/pi/my_tunnel 0.0.0.0 4501 vp.mahtabpcef.ir 4501 2 10 >/dev/null&
+nohup /home/pi/my_tunnel 0.0.0.0 4502 vp.mahtabpcef.ir 4502 2 10 >/dev/null&
+nohup /home/pi/my_tunnel 0.0.0.0 4503 vp.mahtabpcef.ir 4503 2 10 >/dev/null&
+
+exit 0
